@@ -58,8 +58,7 @@ export class FoodService {
       name: 'Pepsi',
       description: 'Refresco',
       category: 'drink',
-      image:
-        'https://m.media-amazon.com/images/I/51h232yC+zL.jpg',
+      image: 'https://m.media-amazon.com/images/I/51h232yC+zL.jpg',
       price: 25,
     },
     {
@@ -82,12 +81,36 @@ export class FoodService {
     },
   ];
 
-  constructor(private http:HttpClient) {
-  
+  constructor() {}
+
+  public getAllFoods(): Food[] {
+    return this.menu;
+    //return this.http.get<Food[]>('');
   }
 
-  public getAllFoods():Food[]{
-    return this.menu;
-    //return this.http.get<Food[]>('');        
+  public addFood(food: Food) {
+    this.menu.push(food);
+  }
+
+  public updateFood(newFood: Food) {
+    this.menu.forEach((food, index) => {
+      if (food.id == newFood.id) {
+        food = newFood;
+      }
+    });
+  }
+
+  public deleteFood(deletefood: Food) {
+    console.log(this.menu.length);
+    
+    this.menu.forEach((food, index)=>{
+      if (food.id == deletefood.id) {
+        this.menu.splice(index,1);
+        console.log(this.menu.length);
+        
+
+      }
+    })
+   
   }
 }

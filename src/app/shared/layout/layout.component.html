@@ -16,9 +16,19 @@
   <mat-drawer-container class="w-full h-full pt-10">
     <mat-drawer mode="side" [opened]="opened" class="w-60 px-2 pt-16">
         <!-- MENU DE OPCIONES -->
-        Drawer content
+
+        <mat-nav-list>
+          @for (link of links; track link) {
+            <mat-list-item [routerLink]="link.routerLink">
+              <mat-icon  matListItemIcon>{{link.icon}}</mat-icon>
+               <a matListItemTitle>{{link.label}}</a>
+            </mat-list-item>
+          }
+        </mat-nav-list>
+
+
     </mat-drawer>
-    <mat-drawer-content>
+    <mat-drawer-content class="px-10">
         <!-- RUTAS -->
         <ng-content></ng-content>
     
