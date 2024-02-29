@@ -88,6 +88,12 @@ export class FoodService {
     //return this.http.get<Food[]>('');
   }
 
+
+  //Regresa una comida
+  public getOne(id:number) :Food | undefined {
+    return this.menu.find(item =>item.id === id );
+  }
+
   public addFood(food: Food) {
     this.menu.push(food);
   }
