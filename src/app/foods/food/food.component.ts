@@ -7,11 +7,12 @@ import { Food } from '../shared/food.model';
 import { FoodService } from '../shared/food.service';
 import {MatDialog} from '@angular/material/dialog';
 import { DialogConfirmComponent } from '../../shared/components/dialog-confirm/dialog-confirm.component';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-food',
   standalone: true,
-  imports: [MatButtonModule, MatCardModule,TitleCasePipe, CurrencyPipe,MatIcon],
+  imports: [MatButtonModule, MatCardModule,TitleCasePipe, CurrencyPipe,MatIcon,RouterModule],
   templateUrl: './food.component.html',
   styleUrl: './food.component.scss'
 })
@@ -25,14 +26,20 @@ export class FoodComponent {
     const dialogRef = this.dialog.open(DialogConfirmComponent,{
       data:deleteFood
     });
-
-
     dialogRef.afterClosed().subscribe(result => {
       console.log(`Dialog result: ${result}`);
       if (result == true) {
-        this.serviceFood.deleteFood(deleteFood);
+        this.delete(deleteFood)
       } 
     });
+  }
+
+  public delete(food:Food){
+    this.serviceFood.deleteFood(food).subscribe({
+      next:()=>  console.log('Se esta eliminando'),
+      error:(e) => console.error(e),
+      complete:()=> console.info('complete'),
+    })
   }
 
 

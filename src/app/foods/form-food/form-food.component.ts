@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
   FormBuilder,
   Validators,
@@ -11,6 +11,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { Food } from '../shared/food.model';
 import { FoodService } from '../shared/food.service';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-form-food',
@@ -22,18 +24,13 @@ import { FoodService } from '../shared/food.service';
     ReactiveFormsModule,
     MatSelectModule,
     MatButtonModule,
+    RouterModule,
+    MatIcon,
   ],
   templateUrl: './form-food.component.html',
   styleUrl: './form-food.component.scss',
 })
-export class FormFoodComponent {
-  /*
-  name:string;
-  description:string;
-  image:string;
-  category:'drink' | 'food';
-  price:number;*/
-
+export class FormFoodComponent implements OnInit {
   form = this.formBuilder.group({
     name: ['', [Validators.required]],
     description: ['', [Validators.required, Validators.minLength(20)]],
@@ -42,13 +39,92 @@ export class FormFoodComponent {
     price: ['', [Validators.required, Validators.min(2)]],
   });
 
-  constructor(private formBuilder: FormBuilder, public serviceFood:FoodService) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    public serviceFood: FoodService,
+    public router: Router
+  ) {}
+  route: ActivatedRoute = inject(ActivatedRoute);
+  foodId: number = -1;
+  edit: boolean = false;
+  food?: Food = {
+    id: 0,
+    name: '',
+    description: '',
+    category: '',
+    image: '',
+    price: 0,
+  };
+
+  ngOnInit(): void {
+    if (this.route.snapshot.params['id']) {
+      this.edit = true;
+      console.log('Esta se puede actualizar' + this.edit);
+      this.foodId = Number(this.route.snapshot.params['id']);
+      this.serviceFood.getOneFood(this.foodId).subscribe({
+        next: (value) => this.updateForm(value),
+        error: (e) => console.error(e),
+        complete: () => console.info('complete'),
+      });
+    }
+  }
+
+  public updateForm(food: Food): void {
+    if (food) {
+      this.form.patchValue({
+        name: food.name,
+        category: food.category,
+        description: food.description,
+        image: food.image,
+        price: food.price.toString(),
+      });
+    }
+  }
+
+  public updateData() {
+    // Validando formulario
+    if (this.form.status == 'VALID') {
+      // Validando cada dato
+      if (
+        this.name?.value &&
+        this.description?.value &&
+        this.category?.value &&
+        this.image?.value &&
+        this.price?.value
+      ) {
+        let price = parseInt(this.price.value);
+
+        //Creando el objeto
+        let comida: Food = {
+          id: this.foodId,
+          name: this.name.value,
+          description: this.description.value,
+          category: this.category?.value,
+          image: this.image?.value,
+          price: price,
+        };
+
+        // Pasando comida al servicio para actualizar
+        this.serviceFood.addFood(comida).subscribe({
+          next: (value) => (this.food = value),
+          error: (e) => console.error(e),
+          complete: () => this.router.navigate(['/food/food-list']),
+        });
+      }
+    }
+  }
 
   public sendData() {
     // Validando formulario
     if (this.form.status == 'VALID') {
       // Validando cada dato
-      if (this.name?.value && this.description?.value && this.category?.value && this.image?.value && this.price?.value) {
+      if (
+        this.name?.value &&
+        this.description?.value &&
+        this.category?.value &&
+        this.image?.value &&
+        this.price?.value
+      ) {
         let price = parseInt(this.price.value);
 
         //Creando el objeto
@@ -56,17 +132,20 @@ export class FormFoodComponent {
           name: this.name.value,
           description: this.description.value,
           category: this.category?.value,
-          image:this.image?.value,
-          price: price
+          image: this.image?.value,
+          price: price,
         };
 
         //Imprimiendo
         console.log(comida);
-        this.serviceFood.addFood(comida);
-        console.log(this.serviceFood.getAllFoods());
-        
+        // this.serviceFood.addFood(comida);
+        this.serviceFood.addFood(comida).subscribe({
+          next: (value) => (this.food = value),
+          error: (error) => console.error(error),
+          complete: () => this.router.navigate(['/food/food-list']),
+        });
+
       }
-  
     }
   }
 
@@ -85,11 +164,5 @@ export class FormFoodComponent {
   }
   get price() {
     return this.form.get('price');
-  }
-
-  getErros() {
-    if (this.form.status == 'INVALID') {
-      console.log(this.form.controls.description.hasError('minlenght'));
-    }
   }
 }

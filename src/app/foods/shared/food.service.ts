@@ -2,11 +2,16 @@ import { Injectable } from '@angular/core';
 import { Food } from './food.model';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FoodService {
+
+  API_URL:string= '';
+
+
   menu: Food[] = [
     {
       id: 1,
@@ -81,9 +86,29 @@ export class FoodService {
     },
   ];
 
-  constructor() {}
+  constructor(private http:HttpClient) {
+    this.API_URL = `${environment.API_URL}`
+  }
 
-  public getAllFoods(): Food[] {
+  //funciona para obtener todas las comidas
+  public getAll():Observable<Food[]>{
+    return this.http.get<Food[]>(this.API_URL+'food/all');
+  }
+
+  //Funcion para agregar una comida
+  public addFood(food:Food):Observable<Food>{
+     return this.http.post<Food>(this.API_URL+'food/save',food);
+  }
+
+  public getOneFood(id:number):Observable<Food>{
+    return this.http.get<Food>(this.API_URL+'food/find/'+id);
+  }
+
+  public deleteFood(deleteFood:Food):Observable<unknown>{
+    return this.http.delete(this.API_URL + 'food/delete/'+deleteFood.id);
+  }
+
+  /*public getAllFoods(): Food[] {
     return this.menu;
     //return this.http.get<Food[]>('');
   }
@@ -92,16 +117,16 @@ export class FoodService {
   //Regresa una comida
   public getOne(id:number) :Food | undefined {
     return this.menu.find(item =>item.id === id );
-  }
+  }*/
 
-  public addFood(food: Food) {
+  /*public addFood(food: Food) {
     this.menu.push(food);
-  }
+  }*/
 
-  public updateFood(newFood: Food) {
-    this.menu.forEach((food, index) => {
-      if (food.id == newFood.id) {
-        food = newFood;
+  /*public updateFood(newFood: Food) {
+    this.menu.forEach((item, index) => {
+      if (item.id == newFood.id) {
+        this.menu[index] = newFood;
       }
     });
   }
@@ -118,5 +143,5 @@ export class FoodService {
       }
     })
    
-  }
+  }*/
 }
