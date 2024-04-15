@@ -27,7 +27,16 @@ export class FoodListComponent implements OnInit {
     this.serviceFood.getAll().subscribe({
       next: (data) => (this.data = data),
       error: (e) => console.error(e),
-      complete: () => console.info('complete'),
+      complete: () => console.info('complete list'),
     });
   }
+
+  public ItemDeleted(deleted:boolean){
+    if (deleted) {
+      this.getAllFoods();
+    }
+ 
+  }
+
+
 }

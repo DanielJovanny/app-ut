@@ -8,6 +8,7 @@ import { FoodService } from '../shared/food.service';
 import {MatDialog} from '@angular/material/dialog';
 import { DialogConfirmComponent } from '../../shared/components/dialog-confirm/dialog-confirm.component';
 import { RouterModule } from '@angular/router';
+import { Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-food',
@@ -18,6 +19,7 @@ import { RouterModule } from '@angular/router';
 })
 export class FoodComponent {
   @Input() food?:Food; 
+  @Output() eventDeleteItem = new EventEmitter<boolean>;
   constructor (public serviceFood:FoodService, public dialog:MatDialog){
     
   }
@@ -38,8 +40,12 @@ export class FoodComponent {
     this.serviceFood.deleteFood(food).subscribe({
       next:()=>  console.log('Se esta eliminando'),
       error:(e) => console.error(e),
-      complete:()=> console.info('complete'),
+      complete:()=> this.deleteItemEvent(true),
     })
+  }
+
+  public deleteItemEvent(value:boolean){
+    this.eventDeleteItem.emit(value);
   }
 
 
